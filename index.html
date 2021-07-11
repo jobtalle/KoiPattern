@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta name="twitter:card" content="summary"/>
+    <meta name="twitter:site" content="@jobtalle"/>
+    <meta name="twitter:description" content="Koi pattern"/>
+    <meta name="twitter:title" content="Koi pattern"/>
+    <meta name="twitter:image" content="https://jobtalle.com/KoiPattern/preview.png"/>
+    <meta property="og:image" content="https://jobtalle.com/KoiPattern/preview.png"/>
+    <title>Koi pattern</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+<div id="wrapper">
+    <div id="content">
+        <canvas width="500" height="300" id="renderer"></canvas>
+        <div id="controls">
+            <label>
+                X:
+                <input type="range" min="-10" max="10" value="0" step="0.1" id="var-x">
+                <input readonly type="text" id="field-x" value="0">
+            </label>
+            <label>
+                Y:
+                <input type="range" min="-10" max="10" value="0" step="0.1" id="var-y">
+                <input readonly type="text" id="field-y" value="0">
+            </label>
+            <label>
+                Z:
+                <input type="range" min="-10" max="10" value="0" step="0.1" id="var-z">
+                <input readonly type="text" id="field-z" value="0">
+            </label>
+            <label>
+                X rotation:
+                <input type="range" min="-180" max="180" value="0" step="1" id="var-x-rotation">
+                <input readonly type="text" id="field-x-rotation" value="0">
+            </label>
+            <label>
+                Y rotation:
+                <input type="range" min="-180" max="180" value="0" step="1" id="var-y-rotation">
+                <input readonly type="text" id="field-y-rotation" value="0">
+            </label>
+            <label>
+                Threshold:
+                <input type="range" min="0" max="1" value="0.5" step="0.01" id="var-threshold">
+                <input readonly type="text" id="field-threshold" value="0.5">
+            </label>
+            <label>
+                Scale:
+                <input type="range" min="0.1" max="6" value="1" step="0.01" id="var-scale">
+                <input readonly type="text" id="field-scale" value="1">
+            </label>
+            <label>
+                Skew:
+                <input type="range" min="-2" max="2" value="0" step="0.01" id="var-skew">
+                <input readonly type="text" id="field-skew" value="0">
+            </label>
+        </div>
+    </div>
+</div>
+<script src="js/main.js"></script>
+</body>
+</html>

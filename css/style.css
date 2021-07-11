@@ -1,0 +1,26 @@
+body {
+    margin: 0;
+}
+
+#wrapper {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#renderer {
+    border: 1px solid black;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    user-select: none;
+}
+
+#controls input[type=text] {
+    width: 64px;
+}
