@@ -26,7 +26,6 @@ let varXRotation = Number.parseFloat(fieldXRotation.value);
 let varYRotation = Number.parseFloat(fieldYRotation.value);
 let varThreshold = Number.parseFloat(fieldThreshold.value);
 let varScale = Number.parseFloat(fieldScale.value);
-let varSkew = Number.parseFloat(fieldSkew.value);
 
 const render = () => {
     shaderSpots.use();
@@ -34,6 +33,7 @@ const render = () => {
     shaderSpots.setSize(renderer.clientWidth, renderer.clientHeight);
     shaderSpots.setThreshold(varThreshold);
     shaderSpots.setPosition(varX, varY, varZ);
+    shaderSpots.setRotation(Math.PI * varXRotation / 180, Math.PI * varYRotation / 180);
 
     gl.viewport(0, 0, renderer.clientWidth, renderer.clientHeight);
     gl.clearColor(1, 0, 0, 1);
@@ -86,13 +86,6 @@ sliderThreshold.addEventListener("input", () => {
 sliderScale.addEventListener("input", () => {
     varScale = Number.parseFloat(sliderScale.value);
     fieldScale.value = varScale.toString();
-
-    render();
-});
-
-sliderSkew.addEventListener("input", () => {
-    varSkew = Number.parseFloat(sliderSkew.value);
-    fieldSkew.value = varSkew.toString();
 
     render();
 });

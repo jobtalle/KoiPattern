@@ -75,12 +75,22 @@ export class ShaderSpots extends Shader {
         uniform mediump float scale;
         uniform mediump float threshold;
         uniform mediump vec3 position;
+        uniform mediump vec2 rotation;
         
         in mediump vec2 uv;
         out lowp vec4 color;
         
         void main() {
-            mediump vec3 samplePosition = position + vec3(uv * scale * size, 0.);
+            mediump mat3 rotationX = mat3(
+                1., 0., 0.,
+                0., cos(rotation.x), -sin(rotation.x),
+                0., sin(rotation.x), cos(rotation.x));
+            mediump mat3 rotationY = mat3(
+                cos(rotation.y), 0., sin(rotation.y),
+                0., 1., 0.,
+                -sin(rotation.y), 0, cos(rotation.y));
+            mediump mat3 rotationXY = rotationY * rotationX;
+            mediump vec3 samplePosition = position + vec3(uv * scale * size, 0.) * rotationXY;
             
             if (cubicNoise(samplePosition) > threshold)
                 color = vec4(vec3(1.), 1.);
@@ -95,6 +105,7 @@ export class ShaderSpots extends Shader {
         this.scale = this.getUniform("scale");
         this.threshold = this.getUniform("threshold");
         this.position = this.getUniform("position");
+        this.rotation = this.getUniform("rotation");
     }
 
     setSize(width, height) {
@@ -111,5 +122,9 @@ export class ShaderSpots extends Shader {
 
     setPosition(x, y, z) {
         gl.uniform3f(this.position, x, y, z);
+    }
+
+    setRotation(x, y) {
+        gl.uniform2f(this.rotation, x, y);
     }
 }
