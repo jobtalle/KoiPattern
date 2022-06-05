@@ -1,0 +1,1 @@
+export const gl = document.getElementById("renderer").getContext("webgl2");

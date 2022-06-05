@@ -1,5 +1,8 @@
+import {gl} from "./gl.js";
+import {ShaderSpots} from "./shaderSpots.js";
+
 const renderer = document.getElementById("renderer");
-const gl = renderer.getContext("webgl");
+const shaderSpots = new ShaderSpots();
 const sliderX = document.getElementById("var-x");
 const sliderY = document.getElementById("var-y");
 const sliderZ = document.getElementById("var-z");
@@ -26,7 +29,16 @@ let varScale = Number.parseFloat(fieldScale.value);
 let varSkew = Number.parseFloat(fieldSkew.value);
 
 const render = () => {
+    shaderSpots.use();
+    shaderSpots.setScale(varScale * .004);
+    shaderSpots.setSize(renderer.clientWidth, renderer.clientHeight);
+    shaderSpots.setThreshold(varThreshold);
+    shaderSpots.setPosition(varX, varY, varZ);
 
+    gl.viewport(0, 0, renderer.clientWidth, renderer.clientHeight);
+    gl.clearColor(1, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 
 sliderX.addEventListener("input", () => {
