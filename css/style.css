@@ -1,3 +1,8 @@
+:root {
+    --color-a: #edefef;
+    --color-b: #d33a35;
+}
+
 body {
     margin: 0;
 }

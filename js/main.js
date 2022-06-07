@@ -1,6 +1,9 @@
 import {gl} from "./gl.js";
 import {ShaderSpots} from "./shaderSpots.js";
+import {Color} from "./color.js";
 
+const colorA = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-a").trim());
+const colorB = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-b").trim());
 const renderer = document.getElementById("renderer");
 const shaderSpots = new ShaderSpots();
 const sliderX = document.getElementById("var-x");
@@ -29,6 +32,7 @@ let varScale = Number.parseFloat(fieldScale.value);
 
 const render = () => {
     shaderSpots.use();
+    shaderSpots.setColors(colorA, colorB);
     shaderSpots.setScale(varScale * .004);
     shaderSpots.setSize(renderer.clientWidth, renderer.clientHeight);
     shaderSpots.setThreshold(varThreshold);
