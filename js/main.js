@@ -8,6 +8,7 @@ import {ShaderShape} from "./shaderShape.js";
     const colorA = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-a").trim());
     const colorB = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-b").trim());
     const colorShade = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-shade").trim());
+    const colorEye = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-eye").trim());
     const renderer = document.getElementById("renderer");
     const width = renderer.clientWidth;
     const height = renderer.clientHeight;
@@ -31,6 +32,7 @@ import {ShaderShape} from "./shaderShape.js";
     const sliderRadius = document.getElementById("var-radius");
     const sliderCenter = document.getElementById("var-center");
     const sliderThickness = document.getElementById("var-thickness");
+    const sliderEyePosition = document.getElementById("var-eye-position");
     const fieldX = document.getElementById("field-x");
     const fieldY = document.getElementById("field-y");
     const fieldZ = document.getElementById("field-z");
@@ -41,6 +43,7 @@ import {ShaderShape} from "./shaderShape.js";
     const fieldRadius = document.getElementById("field-radius");
     const fieldCenter = document.getElementById("field-center");
     const fieldThickness = document.getElementById("field-thickness");
+    const fieldEyePosition = document.getElementById("field-eye-position");
     const buttonRandomize = document.getElementById("button-randomize");
     const buttonMutate = document.getElementById("button-mutate");
     const modeTexture = document.getElementById("mode-texture");
@@ -57,6 +60,7 @@ import {ShaderShape} from "./shaderShape.js";
     let varRadius = Number.parseFloat(fieldRadius.value);
     let varCenter = Number.parseFloat(fieldCenter.value);
     let varThickness = Number.parseFloat(fieldThickness.value);
+    let varEyePosition = Number.parseFloat(fieldEyePosition.value);
 
     gl.bindTexture(gl.TEXTURE_2D, texturePattern);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width << 1, height << 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
@@ -108,6 +112,9 @@ import {ShaderShape} from "./shaderShape.js";
                 shaderShape.setCenter(varCenter);
                 shaderShape.setThickness(varThickness);
                 shaderShape.setShade(colorShade);
+                shaderShape.setSize(width, height);
+                shaderShape.setEye(colorEye);
+                shaderShape.setEyePosition(varEyePosition);
 
                 gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferShape);
                 gl.clear(gl.COLOR_BUFFER_BIT);
@@ -193,6 +200,7 @@ import {ShaderShape} from "./shaderShape.js";
             fieldRadius.value = formatFieldNumber(varRadius = randomizeSlider(sliderRadius));
             fieldCenter.value = formatFieldNumber(varCenter = randomizeSlider(sliderCenter));
             fieldThickness.value = formatFieldNumber(varThickness = randomizeSlider(sliderThickness));
+            fieldEyePosition.value = formatFieldNumber(varEyePosition = randomizeSlider(sliderEyePosition));
         }
 
         render();
@@ -211,6 +219,7 @@ import {ShaderShape} from "./shaderShape.js";
             fieldRadius.value = formatFieldNumber(varRadius = mutateSlider(sliderRadius));
             fieldCenter.value = formatFieldNumber(varCenter = mutateSlider(sliderCenter));
             fieldThickness.value = formatFieldNumber(varThickness = mutateSlider(sliderThickness));
+            fieldEyePosition.value = formatFieldNumber(varEyePosition = mutateSlider(sliderEyePosition));
         }
 
         render();
@@ -282,6 +291,13 @@ import {ShaderShape} from "./shaderShape.js";
     sliderThickness.addEventListener("input", () => {
         varThickness = Number.parseFloat(sliderThickness.value);
         fieldThickness.value = varThickness.toString();
+
+        render();
+    });
+
+    sliderEyePosition.addEventListener("input", () => {
+        varEyePosition = Number.parseFloat(sliderEyePosition.value);
+        fieldEyePosition.value = varEyePosition.toString();
 
         render();
     });
