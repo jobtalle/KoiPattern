@@ -6,7 +6,7 @@ export class ShaderSpots extends Shader {
         out vec2 uv;
         
         void main() {
-            uv = vec2(gl_VertexID & 1, gl_VertexID & 2) * 2. - 1.;
+            uv = vec2(gl_VertexID & 1, (gl_VertexID & 2) >> 1) * 2. - 1.;
             
             gl_Position = vec4(uv, 0., 1.);
         }`;

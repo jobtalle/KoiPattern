@@ -1,11 +1,17 @@
 import {gl} from "./gl.js";
 import {ShaderSpots} from "./shaderSpots.js";
 import {Color} from "./color.js";
+import {ShaderBlit} from "./shaderBlit.js";
 
 const colorA = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-a").trim());
 const colorB = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-b").trim());
 const renderer = document.getElementById("renderer");
+const width = renderer.clientWidth;
+const height = renderer.clientHeight;
 const shaderSpots = new ShaderSpots();
+const shaderBlit = new ShaderBlit();
+const texture = gl.createTexture();
+const framebuffer = gl.createFramebuffer();
 const sliderX = document.getElementById("var-x");
 const sliderY = document.getElementById("var-y");
 const sliderZ = document.getElementById("var-z");
@@ -30,18 +36,33 @@ let varYRotation = Number.parseFloat(fieldYRotation.value);
 let varThreshold = Number.parseFloat(fieldThreshold.value);
 let varScale = Number.parseFloat(fieldScale.value);
 
+gl.bindTexture(gl.TEXTURE_2D, texture);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width << 1, height << 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+
 const render = () => {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
     shaderSpots.use();
     shaderSpots.setColors(colorA, colorB);
     shaderSpots.setScale(varScale * .004);
-    shaderSpots.setSize(renderer.clientWidth, renderer.clientHeight);
+    shaderSpots.setSize(width, height);
     shaderSpots.setThreshold(varThreshold);
     shaderSpots.setPosition(varX, varY, varZ);
     shaderSpots.setRotation(Math.PI * varXRotation / 180, Math.PI * varYRotation / 180);
 
-    gl.viewport(0, 0, renderer.clientWidth, renderer.clientHeight);
-    gl.clearColor(1, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.viewport(0, 0, width << 1, height << 1);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+    shaderBlit.use();
+
+    gl.viewport(0, 0, width, height);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 };
 
