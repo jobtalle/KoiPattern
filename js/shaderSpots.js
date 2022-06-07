@@ -71,6 +71,8 @@ export class ShaderSpots extends Shader {
                 at.z - floored);
         }
 
+        #define POSITION_MAGNITUDE 800.
+
         uniform mediump vec2 size;
         uniform mediump float scale;
         uniform mediump float threshold;
@@ -90,7 +92,7 @@ export class ShaderSpots extends Shader {
                 0., 1., 0.,
                 -sin(rotation.y), 0, cos(rotation.y));
             mediump mat3 rotationXY = rotationY * rotationX;
-            mediump vec3 samplePosition = position + vec3(uv * scale * size, 0.) * rotationXY;
+            mediump vec3 samplePosition = position * POSITION_MAGNITUDE * scale + vec3(uv * scale * size, 0.) * rotationXY;
             
             if (cubicNoise(samplePosition) > threshold)
                 color = vec4(vec3(1.), 1.);
