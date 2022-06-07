@@ -1,6 +1,6 @@
 import {Shader} from "./shader.js";
 
-export class ShaderBlit extends Shader {
+export class ShaderShape extends Shader {
     static FRAGMENT = `#version 300 es
         in mediump vec2 uv;
         out lowp vec4 color;
@@ -12,6 +12,6 @@ export class ShaderBlit extends Shader {
         }`;
 
     constructor() {
-        super(Shader.VERTEX_BLIT, ShaderBlit.FRAGMENT);
+        super(Shader.VERTEX_BLIT, ShaderShape.FRAGMENT);
     }
 }

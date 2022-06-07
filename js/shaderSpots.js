@@ -2,14 +2,6 @@ import {Shader} from "./shader.js";
 import {gl} from "./gl.js";
 
 export class ShaderSpots extends Shader {
-    static VERTEX = `#version 300 es
-        out vec2 uv;
-        
-        void main() {
-            uv = vec2(gl_VertexID & 1, (gl_VertexID & 2) >> 1) * 2. - 1.;
-            
-            gl_Position = vec4(uv, 0., 1.);
-        }`;
     static FRAGMENT = `#version 300 es
         mediump vec4 mod289(mediump vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
         mediump vec4 perm(mediump vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
@@ -71,7 +63,7 @@ export class ShaderSpots extends Shader {
                 at.z - floored);
         }
 
-        #define POSITION_MAGNITUDE 800.
+        #define POSITION_MAGNITUDE 10.
 
         uniform mediump vec3 colorA;
         uniform mediump vec3 colorB;
@@ -94,16 +86,16 @@ export class ShaderSpots extends Shader {
                 0., 1., 0.,
                 -sin(rotation.y), 0, cos(rotation.y));
             mediump mat3 rotationXY = rotationY * rotationX;
-            mediump vec3 samplePosition = position * POSITION_MAGNITUDE * scale + vec3(uv * scale * size, 0.) * rotationXY;
+            mediump vec3 samplePosition = position * POSITION_MAGNITUDE + vec3((uv - .5) * size, 0.) * rotationXY * scale;
             
-            if (cubicNoise(samplePosition) > .5)
+            if (cubicNoise(samplePosition) < threshold)
                 color = vec4(colorA, 1.);
             else
                 color = vec4(colorB, 1.);
         }`;
 
     constructor() {
-        super(ShaderSpots.VERTEX, ShaderSpots.FRAGMENT);
+        super(Shader.VERTEX_BLIT, ShaderSpots.FRAGMENT);
 
         this.colorA = this.getUniform("colorA");
         this.colorB = this.getUniform("colorB");

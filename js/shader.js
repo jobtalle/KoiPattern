@@ -1,6 +1,15 @@
 import {gl} from "./gl.js";
 
 export class Shader {
+    static VERTEX_BLIT = `#version 300 es
+        out vec2 uv;
+        
+        void main() {
+            uv = vec2(gl_VertexID & 1, (gl_VertexID & 2) >> 1);
+            
+            gl_Position = vec4(uv * 2. - 1., 0., 1.);
+        }`;
+
     /**
      * Construct a shader
      * @param {String} vertex The vertex shader

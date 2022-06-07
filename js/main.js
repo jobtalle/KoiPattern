@@ -2,6 +2,7 @@ import {gl} from "./gl.js";
 import {ShaderSpots} from "./shaderSpots.js";
 import {Color} from "./color.js";
 import {ShaderBlit} from "./shaderBlit.js";
+import {ShaderShape} from "./shaderShape.js";
 
 const colorA = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-a").trim());
 const colorB = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-b").trim());
@@ -9,9 +10,15 @@ const renderer = document.getElementById("renderer");
 const width = renderer.clientWidth;
 const height = renderer.clientHeight;
 const shaderSpots = new ShaderSpots();
+const shaderShape = new ShaderShape();
 const shaderBlit = new ShaderBlit();
-const texture = gl.createTexture();
-const framebuffer = gl.createFramebuffer();
+const texturePattern = gl.createTexture();
+const textureShape = gl.createTexture();
+const framebufferPattern = gl.createFramebuffer();
+const framebufferShape = gl.createFramebuffer();
+const controls = document.getElementById("controls");
+const controlsTexture = document.getElementById("controls-texture");
+const controlsShape = document.getElementById("controls-shape");
 const sliderX = document.getElementById("var-x");
 const sliderY = document.getElementById("var-y");
 const sliderZ = document.getElementById("var-z");
@@ -28,6 +35,10 @@ const fieldThreshold = document.getElementById("field-threshold");
 const fieldScale = document.getElementById("field-scale");
 const buttonRandomize = document.getElementById("button-randomize");
 const buttonMutate = document.getElementById("button-mutate");
+const modeTexture = document.getElementById("mode-texture");
+const modeShape = document.getElementById("mode-shape");
+const modeAnimated = document.getElementById("mode-animated");
+let mode = 0;
 let varX = Number.parseFloat(fieldX.value);
 let varY = Number.parseFloat(fieldY.value);
 let varZ = Number.parseFloat(fieldZ.value);
@@ -36,17 +47,26 @@ let varYRotation = Number.parseFloat(fieldYRotation.value);
 let varThreshold = Number.parseFloat(fieldThreshold.value);
 let varScale = Number.parseFloat(fieldScale.value);
 
-gl.bindTexture(gl.TEXTURE_2D, texture);
+gl.bindTexture(gl.TEXTURE_2D, texturePattern);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, width << 1, height << 1, 0, gl.RGB, gl.UNSIGNED_BYTE, null);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferPattern);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texturePattern, 0);
+
+gl.bindTexture(gl.TEXTURE_2D, textureShape);
 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width << 1, height << 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
-gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferShape);
+gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureShape, 0);
 
 const render = () => {
-    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferPattern);
 
     shaderSpots.use();
     shaderSpots.setColors(colorA, colorB);
@@ -58,12 +78,33 @@ const render = () => {
 
     gl.viewport(0, 0, width << 1, height << 1);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-    shaderBlit.use();
+    switch (mode) {
+        case 0:
+            shaderBlit.use();
 
-    gl.viewport(0, 0, width, height);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, width, height);
+            gl.bindTexture(gl.TEXTURE_2D, texturePattern);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            break;
+        case 1:
+            shaderShape.use();
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferShape);
+            gl.viewport(0, 0, width << 1, height << 1);
+            gl.bindTexture(gl.TEXTURE_2D, texturePattern);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            shaderBlit.use();
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, width, height);
+            gl.bindTexture(gl.TEXTURE_2D, textureShape);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    }
 };
 
 const formatFieldNumber = number => {
@@ -92,6 +133,33 @@ const mutateSlider = (slider, radius = 6) => {
 
     return value;
 };
+
+modeTexture.addEventListener("click", () => {
+    mode = 0;
+
+    controlsTexture.classList.remove("hidden");
+    controlsShape.classList.add("hidden");
+
+    render();
+});
+
+modeShape.addEventListener("click", () => {
+    mode = 1;
+
+    controlsTexture.classList.add("hidden");
+    controlsShape.classList.remove("hidden");
+
+    render();
+});
+
+modeAnimated.addEventListener("click", () => {
+    mode = 2;
+
+    controlsTexture.classList.add("hidden");
+    controlsShape.classList.add("hidden");
+
+    render();
+});
 
 buttonRandomize.addEventListener("click", () => {
     fieldX.value = formatFieldNumber(varX = randomizeSlider(sliderX));
@@ -167,3 +235,5 @@ sliderScale.addEventListener("input", () => {
 });
 
 render();
+
+controls.style.height = controls.clientHeight + "px";
