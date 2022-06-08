@@ -2,7 +2,7 @@ import {gl} from "./gl.js";
 import {Vector} from "./vector.js";
 
 export class Mesh {
-    static SEGMENTS = 8;
+    static SEGMENTS = 16;
 
     constructor(width, height) {
         this.width = width;
@@ -17,7 +17,7 @@ export class Mesh {
         this.phaseSpeed = .15;
         this.amplitude = .2;
         this.flow = 10;
-        this.spring = .5;
+        this.spring = .55;
 
         for (let segment = 0; segment < Mesh.SEGMENTS; ++segment) {
             this.spine.push(new Vector());
@@ -99,9 +99,13 @@ export class Mesh {
                 dx = this.spineInterpolated[0].x - this.spineInterpolated[1].x;
                 dy = this.spineInterpolated[0].y - this.spineInterpolated[1].y;
             }
-            else {
+            else if (segment === Mesh.SEGMENTS - 1) {
                 dx = this.spineInterpolated[segment - 1].x - this.spineInterpolated[segment].x;
                 dy = this.spineInterpolated[segment - 1].y - this.spineInterpolated[segment].y;
+            }
+            else {
+                dx = this.spineInterpolated[segment - 1].x - this.spineInterpolated[segment + 1].x;
+                dy = this.spineInterpolated[segment - 1].y - this.spineInterpolated[segment + 1].y;
             }
 
             const dl = Math.sqrt(dx * dx + dy * dy);
