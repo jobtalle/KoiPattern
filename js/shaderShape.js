@@ -24,14 +24,12 @@ export class ShaderShape extends Shader {
         
         void main() {
             mediump float r = getR(uv.x);
-            mediump vec2 position = uv * size;
-            mediump vec2 eyeTop = vec2(eyePosition, .5 - .5 * getR(eyePosition)) * size;
-            mediump vec2 eyeBottom = vec2(eyePosition, .5 + .5 * getR(eyePosition)) * size;
-                     
+            mediump float rEye = getR(eyePosition);
+            
             if (abs(uv.y - .5) * 2. > r)
                 color = vec4(0.);
             else {
-                if (length(position - eyeTop) < EYE_RADIUS || length(position - eyeBottom) < EYE_RADIUS)
+                if (length(size * (vec2(uv.x, abs(uv.y - .5)) - vec2(eyePosition, rEye * .5))) < EYE_RADIUS)
                     color = vec4(eye, 1.);
                 else
                     color = mix(vec4(shade, 1.), texture(source, uv), min(1., pow((r - abs(uv.y - .5) * 2.) / r, SHADE_POWER) * 1.05));
