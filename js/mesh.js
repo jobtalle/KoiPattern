@@ -2,7 +2,7 @@ import {gl} from "./gl.js";
 import {Vector} from "./vector.js";
 
 export class Mesh {
-    static SEGMENTS = 10;
+    static SEGMENTS = 8;
 
     constructor(width, height) {
         this.width = width;
@@ -14,9 +14,10 @@ export class Mesh {
         this.spinePrevious = [];
         this.spineInterpolated = [];
         this.phase = 0;
-        this.phaseSpeed = .1;
-        this.amplitude = .3;
-        this.flow = 12;
+        this.phaseSpeed = .15;
+        this.amplitude = .2;
+        this.flow = 10;
+        this.spring = .5;
 
         for (let segment = 0; segment < Mesh.SEGMENTS; ++segment) {
             this.spine.push(new Vector());
@@ -42,7 +43,8 @@ export class Mesh {
         if ((this.phase += this.phaseSpeed) > Math.PI * 2)
             this.phase -= Math.PI * 2;
 
-        let dxp, dyp;
+        let dxp = 0;
+        let dyp = 0;
 
         for (let segment = 0; segment < Mesh.SEGMENTS; ++segment) {
             this.spinePrevious[segment].set(this.spine[segment]);
@@ -68,20 +70,18 @@ export class Mesh {
                 let dy = ty - this.spine[segment].y;
                 let d = Math.sqrt(dx * dx + dy * dy);
 
-                dxp = dx / d;
-                dyp = dy / d;
-
-                const s = .7;
-
-                this.spine[segment].x += dx * s;
-                this.spine[segment].y += dy * s;
+                this.spine[segment].x += dx * this.spring;
+                this.spine[segment].y += dy * this.spring;
 
                 dx = this.spine[segment - 1].x - this.spine[segment].x;
                 dy = this.spine[segment - 1].y - this.spine[segment].y;
                 d = Math.sqrt(dx * dx + dy * dy);
 
-                this.spine[segment].x = this.spine[segment - 1].x - this.spacing * dx / d;
-                this.spine[segment].y = this.spine[segment - 1].y - this.spacing * dy / d;
+                dxp = dx / d;
+                dyp = dy / d;
+
+                this.spine[segment].x += (d - this.spacing) * dx / d;
+                this.spine[segment].y += (d - this.spacing) * dy / d;
             }
         }
     }
