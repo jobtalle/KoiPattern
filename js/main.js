@@ -3,6 +3,8 @@ import {ShaderSpots} from "./shaderSpots.js";
 import {Color} from "./color.js";
 import {ShaderBlit} from "./shaderBlit.js";
 import {ShaderShape} from "./shaderShape.js";
+import {ShaderMesh} from "./shaderMesh.js";
+import {Mesh} from "./mesh.js";
 
 {
     const colorA = Color.fromHex(getComputedStyle(document.body).getPropertyValue("--color-a").trim());
@@ -15,6 +17,7 @@ import {ShaderShape} from "./shaderShape.js";
     const shaderSpots = new ShaderSpots();
     const shaderShape = new ShaderShape();
     const shaderBlit = new ShaderBlit();
+    const shaderMesh = new ShaderMesh();
     const texturePattern = gl.createTexture();
     const textureShape = gl.createTexture();
     const framebufferPattern = gl.createFramebuffer();
@@ -49,6 +52,7 @@ import {ShaderShape} from "./shaderShape.js";
     const modeTexture = document.getElementById("mode-texture");
     const modeShape = document.getElementById("mode-shape");
     const modeAnimated = document.getElementById("mode-animated");
+    const mesh = new Mesh();
     let mode = 0;
     let varX = Number.parseFloat(fieldX.value);
     let varY = Number.parseFloat(fieldY.value);
@@ -82,7 +86,7 @@ import {ShaderShape} from "./shaderShape.js";
 
     gl.clearColor(1, 1, 1, 0);
 
-    const render = () => {
+    const renderTextures = () => {
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferPattern);
 
         shaderSpots.use();
@@ -166,7 +170,7 @@ import {ShaderShape} from "./shaderShape.js";
         controlsTexture.classList.remove("hidden");
         controlsShape.classList.add("hidden");
 
-        render();
+        renderTextures();
     });
 
     modeShape.addEventListener("click", () => {
@@ -175,7 +179,7 @@ import {ShaderShape} from "./shaderShape.js";
         controlsTexture.classList.add("hidden");
         controlsShape.classList.remove("hidden");
 
-        render();
+        renderTextures();
     });
 
     modeAnimated.addEventListener("click", () => {
@@ -184,7 +188,7 @@ import {ShaderShape} from "./shaderShape.js";
         controlsTexture.classList.add("hidden");
         controlsShape.classList.add("hidden");
 
-        render();
+        renderTextures();
     });
 
     buttonRandomize.addEventListener("click", () => {
@@ -203,7 +207,7 @@ import {ShaderShape} from "./shaderShape.js";
             fieldEyePosition.value = formatFieldNumber(varEyePosition = randomizeSlider(sliderEyePosition));
         }
 
-        render();
+        renderTextures();
     });
 
     buttonMutate.addEventListener("click", () => {
@@ -222,87 +226,112 @@ import {ShaderShape} from "./shaderShape.js";
             fieldEyePosition.value = formatFieldNumber(varEyePosition = mutateSlider(sliderEyePosition));
         }
 
-        render();
+        renderTextures();
     });
 
     sliderX.addEventListener("input", () => {
         varX = Number.parseFloat(sliderX.value);
         fieldX.value = varX.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderY.addEventListener("input", () => {
         varY = Number.parseFloat(sliderY.value);
         fieldY.value = varY.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderZ.addEventListener("input", () => {
         varZ = Number.parseFloat(sliderZ.value);
         fieldZ.value = varZ.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderXRotation.addEventListener("input", () => {
         varXRotation = Number.parseFloat(sliderXRotation.value);
         fieldXRotation.value = varXRotation.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderYRotation.addEventListener("input", () => {
         varYRotation = Number.parseFloat(sliderYRotation.value);
         fieldYRotation.value = varYRotation.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderThreshold.addEventListener("input", () => {
         varThreshold = Number.parseFloat(sliderThreshold.value);
         fieldThreshold.value = varThreshold.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderScale.addEventListener("input", () => {
         varScale = Number.parseFloat(sliderScale.value);
         fieldScale.value = varScale.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderRadius.addEventListener("input", () => {
         varRadius = Number.parseFloat(sliderRadius.value);
         fieldRadius.value = varRadius.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderCenter.addEventListener("input", () => {
         varCenter = Number.parseFloat(sliderCenter.value);
         fieldCenter.value = varCenter.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderThickness.addEventListener("input", () => {
         varThickness = Number.parseFloat(sliderThickness.value);
         fieldThickness.value = varThickness.toString();
 
-        render();
+        renderTextures();
     });
 
     sliderEyePosition.addEventListener("input", () => {
         varEyePosition = Number.parseFloat(sliderEyePosition.value);
         fieldEyePosition.value = varEyePosition.toString();
 
-        render();
+        renderTextures();
     });
 
-    render();
+    renderTextures();
 
     controls.style.height = controls.clientHeight + "px";
+
+    const updateRate = 1 / 20;
+    let lastTime = performance.now();
+    let updateTime = 0;
+
+    const loop = time => {
+        if (mode === 2)
+            mesh.draw(updateTime / updateRate);
+
+        updateTime += Math.min(.1, .001 * Math.max(0, time - lastTime));
+
+        while (updateTime > updateRate) {
+            if (mode === 2) {
+                mesh.update();
+            }
+
+            updateTime -= updateRate;
+        }
+
+        lastTime = time;
+
+        requestAnimationFrame(loop);
+    };
+
+    requestAnimationFrame(loop);
 }
