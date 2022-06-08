@@ -84,8 +84,6 @@ import {Mesh} from "./mesh.js";
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferShape);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureShape, 0);
 
-    gl.clearColor(1, 1, 1, 0);
-
     const renderTextures = () => {
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferPattern);
 
@@ -121,19 +119,20 @@ import {Mesh} from "./mesh.js";
                 shaderShape.setEyePosition(varEyePosition);
 
                 gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferShape);
-                gl.clear(gl.COLOR_BUFFER_BIT);
                 gl.viewport(0, 0, width << 1, height << 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
                 gl.bindTexture(gl.TEXTURE_2D, texturePattern);
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
                 shaderBlit.use();
 
                 gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                gl.clear(gl.COLOR_BUFFER_BIT);
                 gl.viewport(0, 0, width, height);
+                gl.clear(gl.COLOR_BUFFER_BIT);
                 gl.bindTexture(gl.TEXTURE_2D, textureShape);
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
+                break;
         }
     };
 
@@ -315,15 +314,19 @@ import {Mesh} from "./mesh.js";
     let updateTime = 0;
 
     const loop = time => {
-        if (mode === 2)
+        if (mode === 2) {
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, width, height);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
             mesh.draw(updateTime / updateRate);
+        }
 
         updateTime += Math.min(.1, .001 * Math.max(0, time - lastTime));
 
         while (updateTime > updateRate) {
-            if (mode === 2) {
+            if (mode === 2)
                 mesh.update();
-            }
 
             updateTime -= updateRate;
         }
