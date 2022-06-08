@@ -16,6 +16,7 @@ export class Mesh {
         this.phase = 0;
         this.phaseSpeed = .1;
         this.amplitude = .3;
+        this.flow = 12;
 
         for (let segment = 0; segment < Mesh.SEGMENTS; ++segment) {
             this.spine.push(new Vector());
@@ -41,6 +42,8 @@ export class Mesh {
         if ((this.phase += this.phaseSpeed) > Math.PI * 2)
             this.phase -= Math.PI * 2;
 
+        let dxp, dyp;
+
         for (let segment = 0; segment < Mesh.SEGMENTS; ++segment) {
             this.spinePrevious[segment].set(this.spine[segment]);
 
@@ -48,11 +51,37 @@ export class Mesh {
                 if (segment === 1) {
                     const angle = Math.sin(this.phase) * this.amplitude;
 
-                    this.spine[segment].x = this.spine[0].x - Math.cos(angle) * this.spacing;
-                    this.spine[segment].y = this.spine[0].y - Math.sin(angle) * this.spacing;
+                    dxp = Math.cos(angle);
+                    dyp = Math.sin(angle);
+
+                    this.spine[segment].x = this.spine[0].x - dxp * this.spacing;
+                    this.spine[segment].y = this.spine[0].y - dyp * this.spacing;
+
+                    continue;
                 }
-                let dx = this.spine[segment].x - this.spine[segment - 1].x;
-                let dy = this.spine[segment].y - this.spine[segment - 1].y;
+
+                this.spine[segment].x -= this.flow;
+
+                const tx = this.spine[segment - 1].x - dxp * this.spacing;
+                const ty = this.spine[segment - 1].y - dyp * this.spacing;
+                let dx = tx - this.spine[segment].x;
+                let dy = ty - this.spine[segment].y;
+                let d = Math.sqrt(dx * dx + dy * dy);
+
+                dxp = dx / d;
+                dyp = dy / d;
+
+                const s = .7;
+
+                this.spine[segment].x += dx * s;
+                this.spine[segment].y += dy * s;
+
+                dx = this.spine[segment - 1].x - this.spine[segment].x;
+                dy = this.spine[segment - 1].y - this.spine[segment].y;
+                d = Math.sqrt(dx * dx + dy * dy);
+
+                this.spine[segment].x = this.spine[segment - 1].x - this.spacing * dx / d;
+                this.spine[segment].y = this.spine[segment - 1].y - this.spacing * dy / d;
             }
         }
     }
