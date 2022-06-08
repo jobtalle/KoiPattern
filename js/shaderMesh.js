@@ -11,7 +11,8 @@ export class ShaderMesh extends Shader {
         
         void main() {
             uv = vertex.zw;
-            gl_Position = vec4(vertex.xy / size, 0., 1.);
+            
+            gl_Position = vec4(vertex.x / size.x * 2. - 1., vertex.y / size.y * 2., 0., 1.);
         }`;
     static FRAGMENT = `#version 300 es
         in mediump vec2 uv;

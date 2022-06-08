@@ -25,6 +25,7 @@ import {Mesh} from "./mesh.js";
     const controls = document.getElementById("controls");
     const controlsTexture = document.getElementById("controls-texture");
     const controlsShape = document.getElementById("controls-shape");
+    const controlsAnimation = document.getElementById("controls-animation");
     const sliderX = document.getElementById("var-x");
     const sliderY = document.getElementById("var-y");
     const sliderZ = document.getElementById("var-z");
@@ -52,7 +53,7 @@ import {Mesh} from "./mesh.js";
     const modeTexture = document.getElementById("mode-texture");
     const modeShape = document.getElementById("mode-shape");
     const modeAnimated = document.getElementById("mode-animated");
-    const mesh = new Mesh();
+    const mesh = new Mesh(width, height);
     let mode = 0;
     let varX = Number.parseFloat(fieldX.value);
     let varY = Number.parseFloat(fieldY.value);
@@ -84,6 +85,9 @@ import {Mesh} from "./mesh.js";
     gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferShape);
     gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureShape, 0);
 
+    shaderMesh.use();
+    shaderMesh.setSize(width, height);
+
     const renderTextures = () => {
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebufferPattern);
 
@@ -109,6 +113,7 @@ import {Mesh} from "./mesh.js";
 
                 break;
             case 1:
+            case 2:
                 shaderShape.use();
                 shaderShape.setRadius(varRadius);
                 shaderShape.setCenter(varCenter);
@@ -168,6 +173,7 @@ import {Mesh} from "./mesh.js";
 
         controlsTexture.classList.remove("hidden");
         controlsShape.classList.add("hidden");
+        controlsAnimation.classList.add("hidden");
 
         renderTextures();
     });
@@ -177,6 +183,7 @@ import {Mesh} from "./mesh.js";
 
         controlsTexture.classList.add("hidden");
         controlsShape.classList.remove("hidden");
+        controlsAnimation.classList.add("hidden");
 
         renderTextures();
     });
@@ -186,8 +193,11 @@ import {Mesh} from "./mesh.js";
 
         controlsTexture.classList.add("hidden");
         controlsShape.classList.add("hidden");
+        controlsAnimation.classList.remove("hidden");
 
         renderTextures();
+
+        mesh.initialize();
     });
 
     buttonRandomize.addEventListener("click", () => {
@@ -318,6 +328,9 @@ import {Mesh} from "./mesh.js";
             gl.bindFramebuffer(gl.FRAMEBUFFER, null);
             gl.viewport(0, 0, width, height);
             gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.bindTexture(gl.TEXTURE_2D, textureShape);
+
+            shaderMesh.use();
 
             mesh.draw(updateTime / updateRate);
         }
